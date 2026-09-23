@@ -344,13 +344,18 @@
       <!-- 4. POMODORO FOCUS MODE & AMBIENT SOUNDSCAPES -->
       <section class="view-pane" id="view-pomodoro">
         <div class="pomodoro-container">
-          <div class="pomodoro-mode-switch">
-            <button class="pomodoro-mode-btn active" data-mode="work">🍅 Focus (25m)</button>
-            <button class="pomodoro-mode-btn" data-mode="shortBreak">☕ Short Break (5m)</button>
-            <button class="pomodoro-mode-btn" data-mode="longBreak">🌴 Long Break (15m)</button>
+          <div class="pomodoro-header-row" style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 480px; margin-bottom: 22px; gap: 8px;">
+            <div class="pomodoro-mode-switch" style="margin-bottom: 0;">
+              <button class="pomodoro-mode-btn active" id="btnPomoModeWork" data-mode="work">🍅 Focus (25m)</button>
+              <button class="pomodoro-mode-btn" id="btnPomoModeShort" data-mode="shortBreak">☕ Short Break (5m)</button>
+              <button class="pomodoro-mode-btn" id="btnPomoModeLong" data-mode="longBreak">🌴 Long Break (15m)</button>
+            </div>
+            <button class="icon-btn" onclick="window.BloomFlow.openPomoSettingsModal()" title="Edit Focus & Break Durations" style="border-radius: var(--radius-full); width: 40px; height: 40px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </button>
           </div>
 
-          <div class="pomodoro-dial">
+          <div class="pomodoro-dial" onclick="window.BloomFlow.openPomoSettingsModal()" title="Click to customize timer durations" style="cursor: pointer;">
             <svg class="pomodoro-svg" viewBox="0 0 280 280">
               <defs>
                 <linearGradient id="pomoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -364,6 +369,7 @@
             <div class="pomodoro-time-display">
               <span class="pomodoro-time" id="pomoTimeDisplay">25:00</span>
               <span class="pomodoro-label" id="pomoModeLabel">Deep Work Session</span>
+              <span style="font-size: 0.72rem; color: var(--accent-primary); margin-top: 4px; opacity: 0.85; font-weight: 700;">⚙️ Click to edit</span>
             </div>
           </div>
 
@@ -371,6 +377,9 @@
             <button class="btn-pomo-main" id="btnPomoMain">Start Focus</button>
             <button class="icon-btn" id="btnPomoReset" title="Reset Timer" style="width: 48px; height: 48px; border-radius: var(--radius-full);">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            </button>
+            <button class="icon-btn" onclick="window.BloomFlow.openPomoSettingsModal()" title="Timer Settings" style="width: 48px; height: 48px; border-radius: var(--radius-full);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             </button>
           </div>
 
@@ -552,6 +561,21 @@
       </div>
     </div>
 
+    <div class="form-group">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <label class="form-label" style="margin-bottom: 0;">⏰ Task Alarm Ringtone</label>
+        <button type="button" class="tag-nav-btn" onclick="window.BloomFlow.previewSelectedSound($('modalTaskAlarmSound').value)" style="padding: 2px 7px; font-size: 0.72rem; width: auto; border: 1px solid var(--border-subtle);">▶️ Test Sound</button>
+      </div>
+      <select class="form-select" id="modalTaskAlarmSound" style="margin-top: 6px;">
+        <option value="melody">🎵 Melody Chime (Dual Tone)</option>
+        <option value="digital">⏰ Digital Alarm Beep</option>
+        <option value="bell">🔔 Crystal Bell</option>
+        <option value="triumph">🎺 Triumph Fanfare</option>
+        <option value="gentle">🌸 Gentle Bloom</option>
+        <option value="urgent">🚨 Urgent Pulse Alert</option>
+      </select>
+    </div>
+
     <!-- Subtasks Checklist -->
     <div class="form-group" style="margin-top: 10px;">
       <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -568,6 +592,106 @@
     <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
       <button class="nav-btn" style="width: auto; padding: 10px 20px;" onclick="window.BloomFlow.closeTaskDrawer()">Cancel</button>
       <button class="btn-primary" id="drawerSaveBtn" onclick="window.BloomFlow.saveTaskDrawer()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- UNIVERSAL ALARM MODAL (TASK REMINDER & FOCUS/BREAK FINISHED) -->
+<div class="modal-overlay" id="alarmModalOverlay">
+  <div class="modal-card" style="text-align: center; max-width: 400px; padding: 26px 20px;">
+    <div id="alarmModalIcon" style="font-size: 3.6rem; margin-bottom: 8px; animation: pulseAlarm 1s infinite alternate;">⏰</div>
+    <div class="modal-title" id="alarmModalHeader" style="font-size: 1.35rem; justify-content: center; margin-bottom: 6px;">Alarm Alert!</div>
+    <div id="alarmTaskTitle" style="font-size: 1.2rem; font-weight: 800; color: var(--accent-primary); margin: 12px 0;"></div>
+    <div id="alarmTaskMeta" style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 24px; line-height: 1.4;"></div>
+    <div id="alarmActionsContainer" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+      <!-- Populated dynamically by JS for tasks or focus/breaks -->
+      <button class="nav-btn" id="btnAlarmSecondary" onclick="window.BloomFlow.snoozeAlarm()" style="flex: 1; min-width: 130px; border: 1px solid var(--border-subtle); justify-content: center; padding: 11px;">💤 Snooze 5m</button>
+      <button class="btn-primary" id="btnAlarmPrimary" onclick="window.BloomFlow.completeAlarmTask()" style="flex: 1; min-width: 130px; justify-content: center; padding: 11px;">✅ Mark Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- POMODORO TIMER SETTINGS MODAL -->
+<div class="modal-overlay" id="pomoSettingsModalOverlay" onclick="if(event.target===this) this.classList.remove('active')">
+  <div class="modal-card" style="max-width: 420px;">
+    <div class="modal-header">
+      <div class="modal-title">⏱️ Focus & Break Durations</div>
+      <button class="modal-close-btn" onclick="$('pomoSettingsModalOverlay').classList.remove('active')">✕</button>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 14px;">
+      <label class="form-label">🍅 Focus Session (Minutes)</label>
+      <input type="number" class="form-input" id="customPomoWork" min="1" max="180" value="25" placeholder="e.g. 25">
+    </div>
+
+    <div class="form-group" style="margin-bottom: 14px;">
+      <label class="form-label">☕ Short Break (Minutes)</label>
+      <input type="number" class="form-input" id="customPomoShort" min="1" max="60" value="5" placeholder="e.g. 5">
+    </div>
+
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">🌴 Long Break (Minutes)</label>
+      <input type="number" class="form-input" id="customPomoLong" min="1" max="90" value="15" placeholder="e.g. 15">
+    </div>
+
+    <div class="form-group" style="border-top: 1px solid var(--border-subtle); padding-top: 14px; margin-top: 14px;">
+      <label class="form-label">🔔 Break & Focus Alarm Tones</label>
+      
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+          <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary); flex: 1;">☕ Short Break Alarm:</span>
+          <select class="form-select" id="customPomoShortSound" style="width: 170px; padding: 6px 10px; font-size: 0.82rem;">
+            <option value="bell">🔔 Crystal Bell</option>
+            <option value="melody">🎵 Melody Chime</option>
+            <option value="digital">⏰ Digital Beep</option>
+            <option value="triumph">🎺 Triumph Fanfare</option>
+            <option value="gentle">🌸 Gentle Bloom</option>
+            <option value="urgent">🚨 Urgent Pulse</option>
+          </select>
+          <button type="button" class="tag-nav-btn" onclick="window.BloomFlow.previewSelectedSound($('customPomoShortSound').value)" style="padding: 4px 8px; font-size: 0.72rem; width: auto; border: 1px solid var(--border-subtle);">▶️</button>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+          <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary); flex: 1;">🌴 Long Break Alarm:</span>
+          <select class="form-select" id="customPomoLongSound" style="width: 170px; padding: 6px 10px; font-size: 0.82rem;">
+            <option value="triumph">🎺 Triumph Fanfare</option>
+            <option value="bell">🔔 Crystal Bell</option>
+            <option value="melody">🎵 Melody Chime</option>
+            <option value="digital">⏰ Digital Beep</option>
+            <option value="gentle">🌸 Gentle Bloom</option>
+            <option value="urgent">🚨 Urgent Pulse</option>
+          </select>
+          <button type="button" class="tag-nav-btn" onclick="window.BloomFlow.previewSelectedSound($('customPomoLongSound').value)" style="padding: 4px 8px; font-size: 0.72rem; width: auto; border: 1px solid var(--border-subtle);">▶️</button>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+          <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary); flex: 1;">🍅 Focus Complete:</span>
+          <select class="form-select" id="customPomoWorkSound" style="width: 170px; padding: 6px 10px; font-size: 0.82rem;">
+            <option value="gentle">🌸 Gentle Bloom</option>
+            <option value="melody">🎵 Melody Chime</option>
+            <option value="digital">⏰ Digital Beep</option>
+            <option value="bell">🔔 Crystal Bell</option>
+            <option value="triumph">🎺 Triumph Fanfare</option>
+            <option value="urgent">🚨 Urgent Pulse</option>
+          </select>
+          <button type="button" class="tag-nav-btn" onclick="window.BloomFlow.previewSelectedSound($('customPomoWorkSound').value)" style="padding: 4px 8px; font-size: 0.72rem; width: auto; border: 1px solid var(--border-subtle);">▶️</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-top: 14px;">
+      <label class="form-label">Popular Presets</label>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
+        <button class="nav-btn" onclick="window.BloomFlow.applyPomoPreset(25, 5, 15)" style="border: 1px solid var(--border-subtle); justify-content: center; font-size: 0.8rem;">🎯 25 / 5 / 15m (Classic)</button>
+        <button class="nav-btn" onclick="window.BloomFlow.applyPomoPreset(50, 10, 20)" style="border: 1px solid var(--border-subtle); justify-content: center; font-size: 0.8rem;">⚡ 50 / 10 / 20m (Deep)</button>
+        <button class="nav-btn" onclick="window.BloomFlow.applyPomoPreset(45, 15, 30)" style="border: 1px solid var(--border-subtle); justify-content: center; font-size: 0.8rem;">📚 45 / 15 / 30m (Study)</button>
+        <button class="nav-btn" onclick="window.BloomFlow.applyPomoPreset(15, 3, 10)" style="border: 1px solid var(--border-subtle); justify-content: center; font-size: 0.8rem;">🚀 15 / 3 / 10m (Sprint)</button>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px;">
+      <button class="nav-btn" style="width: auto;" onclick="$('pomoSettingsModalOverlay').classList.remove('active')">Cancel</button>
+      <button class="btn-primary" onclick="window.BloomFlow.savePomoSettings()">Save Settings</button>
     </div>
   </div>
 </div>
@@ -704,6 +828,15 @@
       </div>
     </div>
 
+    <!-- Focus Mode Timers Config -->
+    <div class="form-group" style="margin-top: 16px;">
+      <label class="form-label">Focus & Break Timers</label>
+      <button class="nav-btn" onclick="$('settingsModalOverlay').classList.remove('active'); window.BloomFlow.openPomoSettingsModal();" style="border: 1px solid var(--border-subtle); justify-content: space-between;">
+        <span>⏱️ Focus & Break Durations</span>
+        <span style="font-weight: 700; color: var(--accent-primary); font-size: 0.8rem;">Customize</span>
+      </button>
+    </div>
+
     <!-- Sound Effects Toggle -->
     <div class="form-group" style="margin-top: 16px;">
       <label class="form-label">Sound & Audio Feedback</label>
@@ -711,6 +844,77 @@
         <span>🔊 Sound Effects & Chimes</span>
         <span id="soundToggleStatus" style="font-weight: 800; color: var(--accent-primary);">ON</span>
       </button>
+    </div>
+
+    <!-- Custom Alarm Tones & Sounds Customizer -->
+    <div class="form-group" style="margin-top: 18px; border-top: 1px solid var(--border-subtle); padding-top: 16px;">
+      <label class="form-label">🔔 Custom Alarm Ring Tones</label>
+      
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+        <!-- Task Reminder Alarm -->
+        <div style="background: var(--bg-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 10px 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">⏰ Task Reminder Alarm</span>
+            <button class="nav-btn" onclick="window.BloomFlow.previewSelectedSound($('settingAlarmTask').value)" style="padding: 3px 8px; font-size: 0.72rem; width: auto; border: 1px solid var(--border-subtle);">▶️ Test Sound</button>
+          </div>
+          <select class="form-select" id="settingAlarmTask" onchange="window.BloomFlow.updateAlarmSoundSetting('task', this.value)">
+            <option value="melody">🎵 Melody Chime (Dual Tone)</option>
+            <option value="digital">⏰ Digital Alarm Beep</option>
+            <option value="bell">🔔 Crystal Bell</option>
+            <option value="triumph">🎺 Triumph Fanfare</option>
+            <option value="gentle">🌸 Gentle Bloom</option>
+            <option value="urgent">🚨 Urgent Pulse Alert</option>
+          </select>
+        </div>
+
+        <!-- Short Break Alarm -->
+        <div style="background: var(--bg-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 10px 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">☕ Short Break Finish Alarm</span>
+            <button class="nav-btn" onclick="window.BloomFlow.previewSelectedSound($('settingAlarmShortBreak').value)" style="padding: 3px 8px; font-size: 0.72rem; width: auto; border: 1px solid var(--border-subtle);">▶️ Test Sound</button>
+          </div>
+          <select class="form-select" id="settingAlarmShortBreak" onchange="window.BloomFlow.updateAlarmSoundSetting('shortBreak', this.value)">
+            <option value="bell">🔔 Crystal Bell</option>
+            <option value="melody">🎵 Melody Chime</option>
+            <option value="digital">⏰ Digital Alarm Beep</option>
+            <option value="triumph">🎺 Triumph Fanfare</option>
+            <option value="gentle">🌸 Gentle Bloom</option>
+            <option value="urgent">🚨 Urgent Pulse Alert</option>
+          </select>
+        </div>
+
+        <!-- Long Break Alarm -->
+        <div style="background: var(--bg-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 10px 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">🌴 Long Break Finish Alarm</span>
+            <button class="nav-btn" onclick="window.BloomFlow.previewSelectedSound($('settingAlarmLongBreak').value)" style="padding: 3px 8px; font-size: 0.72rem; width: auto; border: 1px solid var(--border-subtle);">▶️ Test Sound</button>
+          </div>
+          <select class="form-select" id="settingAlarmLongBreak" onchange="window.BloomFlow.updateAlarmSoundSetting('longBreak', this.value)">
+            <option value="triumph">🎺 Triumph Fanfare</option>
+            <option value="bell">🔔 Crystal Bell</option>
+            <option value="melody">🎵 Melody Chime</option>
+            <option value="digital">⏰ Digital Alarm Beep</option>
+            <option value="gentle">🌸 Gentle Bloom</option>
+            <option value="urgent">🚨 Urgent Pulse Alert</option>
+          </select>
+        </div>
+
+        <!-- Focus Session Complete Alarm -->
+        <div style="background: var(--bg-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 10px 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">🍅 Focus Session Finish Alarm</span>
+            <button class="nav-btn" onclick="window.BloomFlow.previewSelectedSound($('settingAlarmFocus').value)" style="padding: 3px 8px; font-size: 0.72rem; width: auto; border: 1px solid var(--border-subtle);">▶️ Test Sound</button>
+          </div>
+          <select class="form-select" id="settingAlarmFocus" onchange="window.BloomFlow.updateAlarmSoundSetting('focus', this.value)">
+            <option value="gentle">🌸 Gentle Bloom</option>
+            <option value="melody">🎵 Melody Chime</option>
+            <option value="digital">⏰ Digital Alarm Beep</option>
+            <option value="bell">🔔 Crystal Bell</option>
+            <option value="triumph">🎺 Triumph Fanfare</option>
+            <option value="urgent">🚨 Urgent Pulse Alert</option>
+          </select>
+        </div>
+      </div>
     </div>
 
     <!-- Android App Install Option -->

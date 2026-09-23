@@ -21,6 +21,21 @@
     { id: 'creative', name: 'Creative', color: 'var(--tag-creative)', bg: 'var(--tag-creative-bg)', icon: '🎨' }
   ];
 
+  // Default Focus & Break Settings
+  const DEFAULT_POMO_SETTINGS = {
+    work: 25,
+    shortBreak: 5,
+    longBreak: 15
+  };
+
+  // Default Alarm Ring Tones (Customizable)
+  const DEFAULT_ALARM_SOUNDS = {
+    task: 'melody',        // for Task Reminders
+    shortBreak: 'bell',    // for Short Break finished
+    longBreak: 'triumph',  // for Long Break finished
+    focus: 'gentle'        // for Focus Session finished
+  };
+
   // Fresh Initial State Template (100% Clean Start)
   const defaultState = {
     tasks: [],
@@ -29,6 +44,8 @@
     streak: { count: 0, lastDate: '' },
     focusMinutesToday: 0,
     tags: DEFAULT_TAGS,
+    pomoSettings: DEFAULT_POMO_SETTINGS,
+    alarmSounds: DEFAULT_ALARM_SOUNDS,
     onboardingDismissed: false
   };
 
@@ -46,17 +63,25 @@
   let calendarDate = new Date();
   let selectedCalendarDateStr = new Date().toISOString().slice(0, 10);
 
+  // Helper: Get Pomodoro Duration in seconds dynamically
+  function getPomoDurationSeconds(mode) {
+    const s = state.pomoSettings || DEFAULT_POMO_SETTINGS;
+    if (mode === 'shortBreak') return (s.shortBreak || 5) * 60;
+    if (mode === 'longBreak') return (s.longBreak || 15) * 60;
+    return (s.work || 25) * 60;
+  }
+
   // Pomodoro Runtime State
-  const POMO_TIMES = {
-    work: 25 * 60,
-    shortBreak: 5 * 60,
-    longBreak: 15 * 60
-  };
   let pomoMode = 'work';
-  let pomoTimeLeft = POMO_TIMES.work;
+  let pomoTimeLeft = getPomoDurationSeconds('work');
   let pomoInterval = null;
   let pomoActiveTaskId = null;
   let currentAmbientSound = 'off';
+
+  // Alarm Runtime State
+  let alarmInterval = null;
+  let activeAlarmTask = null;
+  let activeAlarmSoundType = 'melody';
 
   // Backend Server Config & Sync State
   const API_BASE = window.location.protocol.startsWith('http') ? '' : 'http://localhost:3000';
@@ -77,6 +102,8 @@
         return {
           ...defaultState,
           ...parsed,
+          pomoSettings: { ...DEFAULT_POMO_SETTINGS, ...(parsed.pomoSettings || {}) },
+          alarmSounds: { ...DEFAULT_ALARM_SOUNDS, ...(parsed.alarmSounds || {}) },
           tags: (parsed.tags && parsed.tags.length > 0) ? parsed.tags : DEFAULT_TAGS,
           tasks: Array.isArray(parsed.tasks) ? parsed.tasks : []
         };
@@ -84,7 +111,7 @@
     } catch (e) {
       console.error('Failed to load state from localStorage:', e);
     }
-    return { ...defaultState };
+    return { ...defaultState, pomoSettings: { ...DEFAULT_POMO_SETTINGS }, alarmSounds: { ...DEFAULT_ALARM_SOUNDS } };
   }
 
   function saveState() {
@@ -111,7 +138,7 @@
     } else {
       indicator.classList.add('offline');
       textEl.textContent = message || 'Offline Storage';
-      indicator.title = 'Running on browser offline storage. Start server to sync with database.json';
+      indicator.title = 'Running on phone/browser local storage (100% offline)';
     }
   }
 
@@ -249,8 +276,262 @@
         osc.stop(now + 1.2);
       }
     } catch (e) {
-      console.log('Audio playback policy:', e);
+      console.log('Audio playback notice:', e);
     }
+  }
+
+  /* --------------------------------------------------------------------------
+     3. MULTI-TONE ALARM SYNTHESIZER & CUSTOM SOUND ENGINE
+     -------------------------------------------------------------------------- */
+  function playAlarmTone(soundType) {
+    if (state.soundEnabled === false) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const type = soundType || 'melody';
+
+      if (type === 'digital') {
+        // High-clarity twin electronic beeps
+        [0, 0.12].forEach(offset => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(920, now + offset);
+          gain.gain.setValueAtTime(0.18, now + offset);
+          gain.gain.linearRampToValueAtTime(0.01, now + offset + 0.08);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.08);
+        });
+      } else if (type === 'bell') {
+        // Deep crystal resonant bell
+        const freqs = [880, 1760];
+        freqs.forEach(freq => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          osc.frequency.exponentialRampToValueAtTime(freq * 0.5, now + 1.2);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 1.2);
+        });
+      } else if (type === 'triumph') {
+        // Joyous victory arpeggio (C5 -> E5 -> G5 -> C6)
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const noteTime = now + (idx * 0.10);
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, noteTime);
+          gain.gain.setValueAtTime(0.22, noteTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.45);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(noteTime);
+          osc.stop(noteTime + 0.45);
+        });
+      } else if (type === 'gentle') {
+        // Warm soft bloom chord (E4, A4, C#5, E5)
+        const notes = [329.63, 440.00, 554.37, 659.25];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const noteTime = now + (idx * 0.08);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, noteTime);
+          gain.gain.setValueAtTime(0.20, noteTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.55);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(noteTime);
+          osc.stop(noteTime + 0.55);
+        });
+      } else if (type === 'urgent') {
+        // Fast dual siren pulses
+        [0, 0.18].forEach(offset => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(800, now + offset);
+          osc.frequency.linearRampToValueAtTime(1200, now + offset + 0.12);
+          gain.gain.setValueAtTime(0.18, now + offset);
+          gain.gain.linearRampToValueAtTime(0.01, now + offset + 0.12);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.12);
+        });
+      } else {
+        // Default: Melody chime (D5 -> A5 -> D6 -> A5)
+        const notes = [587.33, 880.00, 1174.66, 880.00];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const noteTime = now + (idx * 0.14);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, noteTime);
+          gain.gain.setValueAtTime(0.22, noteTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(noteTime);
+          osc.stop(noteTime + 0.35);
+        });
+      }
+    } catch (e) {
+      console.log('Alarm tone synthesis notice:', e);
+    }
+  }
+
+  function previewSelectedSound(soundType) {
+    playAlarmTone(soundType);
+    triggerHaptic();
+    const names = {
+      melody: '🎵 Melody Chime',
+      digital: '⏰ Digital Alarm Beep',
+      bell: '🔔 Crystal Bell',
+      triumph: '🎺 Triumph Fanfare',
+      gentle: '🌸 Gentle Bloom',
+      urgent: '🚨 Urgent Pulse'
+    };
+    showToast(`Testing: ${names[soundType] || soundType}`, '🔊', 2200);
+  }
+
+  function startContinuousAlarm(soundType) {
+    activeAlarmSoundType = soundType || 'melody';
+    stopAlarmRingingSound();
+    playAlarmTone(activeAlarmSoundType);
+    alarmInterval = setInterval(() => {
+      playAlarmTone(activeAlarmSoundType);
+    }, 1800);
+  }
+
+  function updateAlarmSoundSetting(key, val) {
+    if (!state.alarmSounds) state.alarmSounds = { ...DEFAULT_ALARM_SOUNDS };
+    state.alarmSounds[key] = val;
+    saveState();
+    previewSelectedSound(val);
+  }
+
+  function syncAlarmSoundInputsUI() {
+    const sounds = state.alarmSounds || DEFAULT_ALARM_SOUNDS;
+    if ($('settingAlarmTask')) $('settingAlarmTask').value = sounds.task || 'melody';
+    if ($('settingAlarmShortBreak')) $('settingAlarmShortBreak').value = sounds.shortBreak || 'bell';
+    if ($('settingAlarmLongBreak')) $('settingAlarmLongBreak').value = sounds.longBreak || 'triumph';
+    if ($('settingAlarmFocus')) $('settingAlarmFocus').value = sounds.focus || 'gentle';
+
+    if ($('customPomoShortSound')) $('customPomoShortSound').value = sounds.shortBreak || 'bell';
+    if ($('customPomoLongSound')) $('customPomoLongSound').value = sounds.longBreak || 'triumph';
+    if ($('customPomoWorkSound')) $('customPomoWorkSound').value = sounds.focus || 'gentle';
+  }
+
+  function startAlarmRinging(task) {
+    activeAlarmTask = task;
+    const modal = $('alarmModalOverlay');
+    const iconEl = $('alarmModalIcon');
+    const headerEl = $('alarmModalHeader');
+    const titleEl = $('alarmTaskTitle');
+    const metaEl = $('alarmTaskMeta');
+    const actionsEl = $('alarmActionsContainer');
+
+    const soundToPlay = task.alarmSound || (state.alarmSounds ? state.alarmSounds.task : 'melody') || 'melody';
+
+    if (iconEl) iconEl.textContent = '⏰';
+    if (headerEl) headerEl.textContent = 'Task Alarm Reminder!';
+    if (titleEl) titleEl.textContent = `${task.emoji || '🌷'} ${task.title}`;
+    if (metaEl) metaEl.textContent = `Scheduled for ${task.time || '18:00'} • Priority: ${task.priority.toUpperCase()}`;
+
+    if (actionsEl) {
+      actionsEl.innerHTML = `
+        <button class="nav-btn" onclick="window.BloomFlow.snoozeAlarm()" style="flex: 1; min-width: 130px; border: 1px solid var(--border-subtle); justify-content: center; padding: 11px;">💤 Snooze 5m</button>
+        <button class="btn-primary" onclick="window.BloomFlow.completeAlarmTask()" style="flex: 1; min-width: 130px; justify-content: center; padding: 11px;">✅ Mark Done</button>
+      `;
+    }
+
+    if (modal) modal.classList.add('active');
+
+    startContinuousAlarm(soundToPlay);
+    triggerHapticAlarm();
+
+    if (Notification.permission === 'granted') {
+      try {
+        new Notification(`⏰ Reminder: ${task.title}`, {
+          body: task.description || `It's time for: ${task.title}`,
+          icon: 'icons/icon.svg',
+          vibrate: [400, 200, 400, 200, 500]
+        });
+      } catch (e) {}
+    }
+
+    showToast(`⏰ Alarm: ${task.title}`, task.emoji || '🔔', 10000);
+  }
+
+  function stopAlarmRingingSound() {
+    if (alarmInterval) {
+      clearInterval(alarmInterval);
+      alarmInterval = null;
+    }
+  }
+
+  function dismissAlarmModal() {
+    stopAlarmRingingSound();
+    const modal = $('alarmModalOverlay');
+    if (modal) modal.classList.remove('active');
+    activeAlarmTask = null;
+    playSound('click');
+  }
+
+  function snoozeAlarm() {
+    stopAlarmRingingSound();
+    const modal = $('alarmModalOverlay');
+    if (modal) modal.classList.remove('active');
+
+    if (activeAlarmTask) {
+      const now = new Date();
+      const snoozeDate = new Date(now.getTime() + 5 * 60000);
+      const hh = String(snoozeDate.getHours()).padStart(2, '0');
+      const mm = String(snoozeDate.getMinutes()).padStart(2, '0');
+      activeAlarmTask.time = `${hh}:${mm}`;
+      activeAlarmTask.lastNotified = '';
+      saveState();
+      renderAll();
+      showToast(`Snoozed for 5 minutes until ${hh}:${mm}`, '💤');
+    }
+    playSound('click');
+  }
+
+  function completeAlarmTask() {
+    stopAlarmRingingSound();
+    const modal = $('alarmModalOverlay');
+    if (modal) modal.classList.remove('active');
+
+    if (activeAlarmTask) {
+      toggleTaskDone(activeAlarmTask.id);
+    }
+    playSound('complete');
+  }
+
+  function startBreakAfterFocus(breakMode) {
+    dismissAlarmModal();
+    switchPomodoroMode(breakMode);
+    startPomodoroInterval();
+    $('btnPomoMain').textContent = 'Pause';
+    showToast(`Started ${breakMode === 'longBreak' ? 'Long Break' : 'Short Break'}! Relax & recharge.`, '☕');
+  }
+
+  function startFocusAfterBreak() {
+    dismissAlarmModal();
+    switchPomodoroMode('work');
+    startPomodoroInterval();
+    $('btnPomoMain').textContent = 'Pause';
+    showToast('Focus session started! Deep flow begins.', '🍅');
   }
 
   function setAmbientSound(soundType) {
@@ -277,7 +558,6 @@
       const output = noiseBuffer.getChannelData(0);
 
       if (soundType === 'rain') {
-        // Brown noise + rain bandpass
         let lastOut = 0.0;
         for (let i = 0; i < bufferSize; i++) {
           const white = Math.random() * 2 - 1;
@@ -286,7 +566,6 @@
           output[i] *= 3.5;
         }
       } else if (soundType === 'ocean') {
-        // Pink noise
         let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
         for (let i = 0; i < bufferSize; i++) {
           const white = Math.random() * 2 - 1;
@@ -301,7 +580,6 @@
           b6 = white * 0.115926;
         }
       } else {
-        // Cafe / Forest soft ambient noise
         for (let i = 0; i < bufferSize; i++) {
           output[i] = (Math.random() * 2 - 1) * 0.15;
         }
@@ -381,6 +659,14 @@
     if ('vibrate' in navigator) {
       try {
         navigator.vibrate(15);
+      } catch (e) {}
+    }
+  }
+
+  function triggerHapticAlarm() {
+    if ('vibrate' in navigator) {
+      try {
+        navigator.vibrate([400, 200, 400, 200, 500]);
       } catch (e) {}
     }
   }
@@ -527,14 +813,14 @@
   }
 
   /* --------------------------------------------------------------------------
-     6. TASK MANAGEMENT & SMART NATURAL LANGUAGE QUICK-ADD
+     6. TASK MANAGEMENT & ACCURATE TIME / TAG QUICK-ADD
      -------------------------------------------------------------------------- */
   function parseNaturalLanguageTask(rawText) {
     let text = rawText.trim();
-    let priority = 'p3';
-    let tag = 'personal';
-    let time = '18:00';
-    let dueDate = new Date().toISOString().slice(0, 10);
+    let priority = null;
+    let tag = null;
+    let time = null;
+    let dueDate = null;
 
     // Priority regex: !p1, !p2, !p3, !p4, !urgent, !high, !low
     if (/!p1|!urgent/i.test(text)) {
@@ -575,7 +861,8 @@
         if (!isPm && hour === 12) hour = 0;
         time = `${String(hour).padStart(2, '0')}:${m.padStart(2, '0')}`;
       } else if (timeVal.includes(':')) {
-        time = timeVal;
+        let [h, m = '00'] = timeVal.split(':');
+        time = `${String(parseInt(h, 10)).padStart(2, '0')}:${m.padStart(2, '0')}`;
       }
       text = text.replace(/@\S+/gi, '');
     }
@@ -585,6 +872,9 @@
       const tmrw = new Date(Date.now() + 86400000);
       dueDate = tmrw.toISOString().slice(0, 10);
       text = text.replace(/@tomorrow/gi, '');
+    } else if (/@today/i.test(rawText)) {
+      dueDate = new Date().toISOString().slice(0, 10);
+      text = text.replace(/@today/gi, '');
     }
 
     return {
@@ -596,12 +886,20 @@
     };
   }
 
-  function addTask({ title, description = '', emoji = '🌷', priority = 'p3', tag = 'personal', dueDate = '', time = '18:00', recurrence = 'once', subtasks = [], status = 'todo' }) {
+  function addTask({ title, description = '', emoji = '🌷', priority = 'p3', tag = 'personal', dueDate = '', time = '18:00', recurrence = 'once', subtasks = [], status = 'todo', alarmSound = 'melody' }) {
     if (!title || !title.trim()) {
       showToast('Please enter a task name', '⚠️');
       return null;
     }
 
+    // Normalize time to HH:MM format
+    let normalizedTime = time || '18:00';
+    if (normalizedTime.includes(':')) {
+      const [th, tm = '00'] = normalizedTime.split(':');
+      normalizedTime = `${String(parseInt(th, 10)).padStart(2, '0')}:${tm.padStart(2, '0')}`;
+    }
+
+    const defaultSound = (state.alarmSounds ? state.alarmSounds.task : 'melody') || 'melody';
     const today = new Date().toISOString().slice(0, 10);
     const newTask = {
       id: 'task_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
@@ -609,11 +907,12 @@
       description: (description || '').trim(),
       emoji: emoji || '🌷',
       priority: priority || 'p3',
-      tag: tag || 'personal',
+      tag: tag || (state.tags[0] ? state.tags[0].id : 'personal'),
       status: status || 'todo',
       done: status === 'done',
       dueDate: dueDate || today,
-      time: time || '18:00',
+      time: normalizedTime,
+      alarmSound: alarmSound || defaultSound,
       recurrence: recurrence || 'once',
       subtasks: Array.isArray(subtasks) ? [...subtasks] : [],
       pomodorosEstimated: 1,
@@ -762,7 +1061,6 @@
     } else if (activeSort === 'title') {
       list.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
     } else {
-      // Created (default)
       list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
     }
 
@@ -779,7 +1077,6 @@
     currentView = viewName;
     activeTag = null;
 
-    // Update nav buttons in sidebar & mobile nav
     $$('.nav-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.view === viewName);
     });
@@ -788,7 +1085,6 @@
       item.classList.toggle('active', item.dataset.view === viewName);
     });
 
-    // Toggle View Panes
     $$('.view-pane').forEach(pane => pane.classList.remove('active'));
 
     if (['today', 'inbox', 'upcoming'].includes(viewName)) {
@@ -799,7 +1095,6 @@
       if (targetPane) targetPane.classList.add('active');
     }
 
-    // Close mobile drawer if open
     const sidebar = $('sidebar');
     if (sidebar) sidebar.classList.remove('open');
     const backdrop = $('sidebarBackdrop');
@@ -827,7 +1122,7 @@
   }
 
   /* --------------------------------------------------------------------------
-     8. RENDERING: LIST VIEW & PROGRESS
+     8. RENDERING: LIST VIEW & PROGRESS (Clean Empty State)
      -------------------------------------------------------------------------- */
   function renderListView() {
     const container = $('taskListContainer');
@@ -874,14 +1169,12 @@
       }
     }
 
-    // Render List Items or Clean Empty State
+    // Clean Empty State: Only bold text and icon
     if (tasks.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-state-icon">🌷</div>
           <h3>Clean workspace, ready to bloom!</h3>
-          <p>Type above with smart tags like <code>#work</code> <code>!p1</code>, or click below to add your first plan.</p>
-          <button class="btn-primary" style="margin: 0 auto; display: inline-flex;" onclick="window.BloomFlow.openTaskDrawer('new')">＋ Add My First Plan</button>
         </div>
       `;
       return;
@@ -1087,11 +1380,73 @@
   }
 
   /* --------------------------------------------------------------------------
-     11. POMODORO FOCUS TIMER ENGINE
+     11. POMODORO FOCUS TIMER ENGINE WITH CUSTOM DURATIONS & ALARMS
      -------------------------------------------------------------------------- */
+  function updatePomodoroModeButtons() {
+    const s = state.pomoSettings || DEFAULT_POMO_SETTINGS;
+    const btnWork = $('btnPomoModeWork');
+    const btnShort = $('btnPomoModeShort');
+    const btnLong = $('btnPomoModeLong');
+
+    if (btnWork) btnWork.textContent = `🍅 Focus (${s.work || 25}m)`;
+    if (btnShort) btnShort.textContent = `☕ Short Break (${s.shortBreak || 5}m)`;
+    if (btnLong) btnLong.textContent = `🌴 Long Break (${s.longBreak || 15}m)`;
+  }
+
+  function openPomoSettingsModal() {
+    const s = state.pomoSettings || DEFAULT_POMO_SETTINGS;
+    const sounds = state.alarmSounds || DEFAULT_ALARM_SOUNDS;
+
+    if ($('customPomoWork')) $('customPomoWork').value = s.work || 25;
+    if ($('customPomoShort')) $('customPomoShort').value = s.shortBreak || 5;
+    if ($('customPomoLong')) $('customPomoLong').value = s.longBreak || 15;
+
+    if ($('customPomoShortSound')) $('customPomoShortSound').value = sounds.shortBreak || 'bell';
+    if ($('customPomoLongSound')) $('customPomoLongSound').value = sounds.longBreak || 'triumph';
+    if ($('customPomoWorkSound')) $('customPomoWorkSound').value = sounds.focus || 'gentle';
+
+    const modal = $('pomoSettingsModalOverlay');
+    if (modal) modal.classList.add('active');
+    playSound('click');
+  }
+
+  function applyPomoPreset(work, shortBreak, longBreak) {
+    if ($('customPomoWork')) $('customPomoWork').value = work;
+    if ($('customPomoShort')) $('customPomoShort').value = shortBreak;
+    if ($('customPomoLong')) $('customPomoLong').value = longBreak;
+    playSound('click');
+  }
+
+  function savePomoSettings() {
+    const work = Math.max(1, parseInt($('customPomoWork').value, 10) || 25);
+    const shortBreak = Math.max(1, parseInt($('customPomoShort').value, 10) || 5);
+    const longBreak = Math.max(1, parseInt($('customPomoLong').value, 10) || 15);
+
+    state.pomoSettings = { work, shortBreak, longBreak };
+
+    if (!state.alarmSounds) state.alarmSounds = { ...DEFAULT_ALARM_SOUNDS };
+    if ($('customPomoShortSound')) state.alarmSounds.shortBreak = $('customPomoShortSound').value;
+    if ($('customPomoLongSound')) state.alarmSounds.longBreak = $('customPomoLongSound').value;
+    if ($('customPomoWorkSound')) state.alarmSounds.focus = $('customPomoWorkSound').value;
+
+    saveState();
+    syncAlarmSoundInputsUI();
+    updatePomodoroModeButtons();
+
+    if (!pomoInterval) {
+      pomoTimeLeft = getPomoDurationSeconds(pomoMode);
+      updatePomodoroDisplay();
+    }
+
+    const modal = $('pomoSettingsModalOverlay');
+    if (modal) modal.classList.remove('active');
+    showToast(`Focus & Break settings saved!`, '⏱️');
+    playSound('click');
+  }
+
   function switchPomodoroMode(mode) {
     pomoMode = mode;
-    pomoTimeLeft = POMO_TIMES[mode];
+    pomoTimeLeft = getPomoDurationSeconds(mode);
     stopPomodoroInterval();
 
     $$('.pomodoro-mode-btn').forEach(btn => {
@@ -1107,13 +1462,103 @@
   function togglePomodoro() {
     if (pomoInterval) {
       stopPomodoroInterval();
-      $('btnPomoMain').textContent = 'Start Focus';
+      if ($('btnPomoMain')) $('btnPomoMain').textContent = 'Start Focus';
       playSound('click');
     } else {
       startPomodoroInterval();
-      $('btnPomoMain').textContent = 'Pause';
+      if ($('btnPomoMain')) $('btnPomoMain').textContent = 'Pause';
       playSound('click');
     }
+  }
+
+  function handlePomodoroComplete() {
+    stopPomodoroInterval();
+    const completedMode = pomoMode;
+    const s = state.pomoSettings || DEFAULT_POMO_SETTINGS;
+    const sounds = state.alarmSounds || DEFAULT_ALARM_SOUNDS;
+
+    let soundToPlay = sounds.focus || 'gentle';
+    if (completedMode === 'shortBreak') soundToPlay = sounds.shortBreak || 'bell';
+    else if (completedMode === 'longBreak') soundToPlay = sounds.longBreak || 'triumph';
+
+    // Trigger audible alarm sound loop & vibration
+    triggerHapticAlarm();
+    startContinuousAlarm(soundToPlay);
+
+    const modal = $('alarmModalOverlay');
+    const modalIcon = $('alarmModalIcon');
+    const modalHeader = $('alarmModalHeader');
+    const titleEl = $('alarmTaskTitle');
+    const metaEl = $('alarmTaskMeta');
+    const actionsEl = $('alarmActionsContainer');
+
+    if (completedMode === 'work') {
+      state.focusMinutesToday = (state.focusMinutesToday || 0) + (s.work || 25);
+      if (pomoActiveTaskId) {
+        const task = state.tasks.find(t => t.id === pomoActiveTaskId);
+        if (task) {
+          task.pomodorosCompleted = (task.pomodorosCompleted || 0) + 1;
+        }
+      }
+      saveState();
+      renderAnalytics();
+
+      if (modalIcon) modalIcon.textContent = '🍅';
+      if (modalHeader) modalHeader.textContent = 'Focus Session Complete!';
+      if (titleEl) titleEl.textContent = '🎉 Awesome Deep Work!';
+      if (metaEl) metaEl.textContent = `You finished ${s.work || 25} minutes of deep flow. Time to recharge! 🌸`;
+
+      if (actionsEl) {
+        actionsEl.innerHTML = `
+          <button class="btn-primary" onclick="window.BloomFlow.startBreakAfterFocus('shortBreak')" style="flex: 1; min-width: 145px; justify-content: center; padding: 11px;">☕ Short Break (${s.shortBreak || 5}m)</button>
+          <button class="nav-btn" onclick="window.BloomFlow.startBreakAfterFocus('longBreak')" style="flex: 1; min-width: 145px; border: 1px solid var(--border-subtle); justify-content: center; padding: 11px;">🌴 Long Break (${s.longBreak || 15}m)</button>
+          <button class="nav-btn" onclick="window.BloomFlow.dismissAlarmModal()" style="width: 100%; border: 1px solid var(--border-subtle); justify-content: center; padding: 9px; margin-top: 4px;">✕ Dismiss</button>
+        `;
+      }
+
+      if (Notification.permission === 'granted') {
+        try {
+          new Notification('🍅 Focus Session Complete!', {
+            body: `Great focus! Time for a mindful ${s.shortBreak || 5}m break.`,
+            icon: 'icons/icon.svg',
+            vibrate: [400, 200, 400, 200, 500]
+          });
+        } catch (e) {}
+      }
+
+      showToast('Focus session complete! Take a mindful breath.', '🍅', 8000);
+    } else {
+      // Short Break or Long Break is Over!
+      const isShort = completedMode === 'shortBreak';
+      const breakName = isShort ? 'Short Break' : 'Long Break';
+
+      if (modalIcon) modalIcon.textContent = isShort ? '☕' : '🌴';
+      if (modalHeader) modalHeader.textContent = `${breakName} Finished!`;
+      if (titleEl) titleEl.textContent = '⏰ Break Time is Over!';
+      if (metaEl) metaEl.textContent = `Your ${breakName.toLowerCase()} has ended. Ready to dive back into deep flow? ✨`;
+
+      if (actionsEl) {
+        actionsEl.innerHTML = `
+          <button class="btn-primary" onclick="window.BloomFlow.startFocusAfterBreak()" style="flex: 1; min-width: 160px; justify-content: center; padding: 11px;">🍅 Start Focus (${s.work || 25}m)</button>
+          <button class="nav-btn" onclick="window.BloomFlow.dismissAlarmModal()" style="flex: 1; min-width: 100px; border: 1px solid var(--border-subtle); justify-content: center; padding: 11px;">✕ Dismiss</button>
+        `;
+      }
+
+      if (Notification.permission === 'granted') {
+        try {
+          new Notification(`⏰ ${breakName} is Over!`, {
+            body: `Break time is up! Ready for your ${s.work || 25}m focus session?`,
+            icon: 'icons/icon.svg',
+            vibrate: [400, 200, 400, 200, 500]
+          });
+        } catch (e) {}
+      }
+
+      showToast(`⏰ ${breakName} complete! Time to focus.`, isShort ? '☕' : '🌴', 8000);
+    }
+
+    if (modal) modal.classList.add('active');
+    triggerConfetti();
   }
 
   function startPomodoroInterval() {
@@ -1123,24 +1568,7 @@
         pomoTimeLeft--;
         updatePomodoroDisplay();
       } else {
-        stopPomodoroInterval();
-        playSound('bell');
-        showToast('Pomodoro session completed! Take a mindful breath.', '🔔', 5000);
-        triggerConfetti();
-
-        if (pomoMode === 'work') {
-          state.focusMinutesToday = (state.focusMinutesToday || 0) + 25;
-          if (pomoActiveTaskId) {
-            const task = state.tasks.find(t => t.id === pomoActiveTaskId);
-            if (task) {
-              task.pomodorosCompleted = (task.pomodorosCompleted || 0) + 1;
-            }
-          }
-          saveState();
-          renderAnalytics();
-        }
-
-        switchPomodoroMode(pomoMode === 'work' ? 'shortBreak' : 'work');
+        handlePomodoroComplete();
       }
     }, 1000);
   }
@@ -1155,7 +1583,7 @@
 
   function resetPomodoro() {
     stopPomodoroInterval();
-    pomoTimeLeft = POMO_TIMES[pomoMode];
+    pomoTimeLeft = getPomoDurationSeconds(pomoMode);
     updatePomodoroDisplay();
     playSound('click');
   }
@@ -1170,7 +1598,7 @@
 
     const circle = $('pomoCircleProgress');
     if (circle) {
-      const total = POMO_TIMES[pomoMode];
+      const total = getPomoDurationSeconds(pomoMode);
       const circumference = 2 * Math.PI * 120;
       const offset = circumference - (pomoTimeLeft / total) * circumference;
       circle.style.strokeDasharray = `${circumference}`;
@@ -1312,9 +1740,15 @@
     selects.forEach(id => {
       const el = $(id);
       if (el) {
+        const prevValue = el.value;
         el.innerHTML = state.tags.map(t => `
           <option value="${t.id}">${t.icon || '🏷️'} ${t.name}</option>
         `).join('');
+        if (prevValue && state.tags.some(t => t.id === prevValue)) {
+          el.value = prevValue;
+        } else if (activeTag && state.tags.some(t => t.id === activeTag)) {
+          el.value = activeTag;
+        }
       }
     });
   }
@@ -1328,20 +1762,27 @@
 
     const modalTitleEl = $('drawerModalTitle');
     const modalSaveBtn = $('drawerSaveBtn');
+    const defaultAlarmSound = (state.alarmSounds ? state.alarmSounds.task : 'melody') || 'melody';
 
     if (id === 'new') {
       if (modalTitleEl) modalTitleEl.textContent = '✨ Create New Task';
       if (modalSaveBtn) modalSaveBtn.textContent = '＋ Create Task';
+
+      const now = new Date();
+      const currentHH = String(now.getHours()).padStart(2, '0');
+      const currentMM = String(now.getMinutes()).padStart(2, '0');
 
       $('modalTaskId').value = '';
       $('modalTaskTitle').value = '';
       $('modalTaskDesc').value = '';
       $('modalTaskEmoji').value = '🌷';
       $('modalTaskPriority').value = 'p3';
-      if (state.tags[0]) $('modalTaskTag').value = state.tags[0].id;
+      const initialTag = activeTag || (state.tags[0] ? state.tags[0].id : 'personal');
+      if ($('modalTaskTag')) $('modalTaskTag').value = initialTag;
       $('modalTaskDueDate').value = new Date().toISOString().slice(0, 10);
-      $('modalTaskTime').value = '18:00';
+      $('modalTaskTime').value = `${currentHH}:${currentMM}`;
       $('modalTaskRecurrence').value = 'once';
+      if ($('modalTaskAlarmSound')) $('modalTaskAlarmSound').value = defaultAlarmSound;
       $('newSubtaskText').value = '';
 
       drawerSubtasks = [];
@@ -1368,6 +1809,7 @@
     $('modalTaskDueDate').value = task.dueDate || '';
     $('modalTaskTime').value = task.time || '18:00';
     $('modalTaskRecurrence').value = task.recurrence || 'once';
+    if ($('modalTaskAlarmSound')) $('modalTaskAlarmSound').value = task.alarmSound || defaultAlarmSound;
     $('newSubtaskText').value = '';
 
     drawerSubtasks = task.subtasks ? JSON.parse(JSON.stringify(task.subtasks)) : [];
@@ -1417,6 +1859,13 @@
     }
 
     const initialStatus = $('modalTaskId').dataset.initialStatus || 'todo';
+    let chosenTime = $('modalTaskTime').value || '18:00';
+    if (chosenTime.includes(':')) {
+      const [th, tm = '00'] = chosenTime.split(':');
+      chosenTime = `${String(parseInt(th, 10)).padStart(2, '0')}:${tm.padStart(2, '0')}`;
+    }
+
+    const chosenAlarmSound = $('modalTaskAlarmSound') ? $('modalTaskAlarmSound').value : ((state.alarmSounds ? state.alarmSounds.task : 'melody') || 'melody');
 
     if (editingTaskId === 'new') {
       addTask({
@@ -1426,7 +1875,8 @@
         priority: $('modalTaskPriority').value,
         tag: $('modalTaskTag').value,
         dueDate: $('modalTaskDueDate').value,
-        time: $('modalTaskTime').value,
+        time: chosenTime,
+        alarmSound: chosenAlarmSound,
         recurrence: $('modalTaskRecurrence').value,
         subtasks: drawerSubtasks,
         status: initialStatus
@@ -1444,7 +1894,8 @@
     task.priority = $('modalTaskPriority').value;
     task.tag = $('modalTaskTag').value;
     task.dueDate = $('modalTaskDueDate').value;
-    task.time = $('modalTaskTime').value;
+    task.time = chosenTime;
+    task.alarmSound = chosenAlarmSound;
     task.recurrence = $('modalTaskRecurrence').value;
     task.subtasks = drawerSubtasks;
 
@@ -1540,7 +1991,7 @@
   }
 
   /* --------------------------------------------------------------------------
-     17. NOTIFICATIONS & REMINDERS DAEMON
+     17. NOTIFICATIONS & PRECISE LIVE REMINDER ALARM DAEMON
      -------------------------------------------------------------------------- */
   async function requestNotificationPermission() {
     if (!('Notification' in window)) {
@@ -1549,10 +2000,13 @@
     }
     const perm = await Notification.requestPermission();
     if (perm === 'granted') {
-      new Notification('Mimi 🌷', {
-        body: 'Gentle reminders and notifications are now active!'
-      });
-      showToast('Notifications enabled!', '🔔');
+      try {
+        new Notification('Mimi 🌷', {
+          body: 'Gentle alarms and notifications are active!',
+          icon: 'icons/icon.svg'
+        });
+      } catch (e) {}
+      showToast('Alarms & notifications enabled!', '🔔');
     } else {
       showToast('Notifications permission was not granted.', '⚠️');
     }
@@ -1560,9 +2014,12 @@
 
   function checkLiveReminders() {
     const now = new Date();
-    const currentHHMM = now.toTimeString().slice(0, 5);
+    const currentHH = String(now.getHours()).padStart(2, '0');
+    const currentMM = String(now.getMinutes()).padStart(2, '0');
+    const currentHHMM = `${currentHH}:${currentMM}`;
+    const todayStr = now.toISOString().slice(0, 10);
     const dayOfWeek = now.getDay();
-    const stamp = now.toISOString().slice(0, 16);
+    const stamp = `${todayStr}_${currentHHMM}`;
 
     let updated = false;
 
@@ -1570,25 +2027,26 @@
       if (t.done) return;
       if (t.lastNotified === stamp) return;
 
+      // Normalize task time to HH:MM
+      let taskTime = t.time || '18:00';
+      if (taskTime.includes(':')) {
+        const [th, tm = '00'] = taskTime.split(':');
+        taskTime = `${String(parseInt(th, 10)).padStart(2, '0')}:${tm.padStart(2, '0')}`;
+      }
+
       let isDue = false;
-      if (t.time === currentHHMM) {
+      if (taskTime === currentHHMM) {
         if (t.recurrence === 'daily') isDue = true;
         else if (t.recurrence === 'weekdays' && dayOfWeek >= 1 && dayOfWeek <= 5) isDue = true;
         else if (t.recurrence === 'weekend' && (dayOfWeek === 0 || dayOfWeek === 6)) isDue = true;
-        else if (t.recurrence === 'once' && t.dueDate === now.toISOString().slice(0, 10)) isDue = true;
+        else if (t.recurrence === 'once' && t.dueDate === todayStr) isDue = true;
+        else if (!t.recurrence && t.dueDate === todayStr) isDue = true;
       }
 
       if (isDue) {
         t.lastNotified = stamp;
         updated = true;
-        playSound('bell');
-
-        if (Notification.permission === 'granted') {
-          new Notification(`${t.emoji || '🌷'} Reminder: ${t.title}`, {
-            body: t.description || 'Time to complete your scheduled plan!'
-          });
-        }
-        showToast(`Reminder: ${t.title}`, t.emoji || '⏰', 6000);
+        startAlarmRinging(t);
       }
     });
 
@@ -1650,7 +2108,7 @@
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `bloomflow_backup_${new Date().toISOString().slice(0, 10)}.json`);
+    downloadAnchor.setAttribute("download", `mimi_backup_${new Date().toISOString().slice(0, 10)}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -1666,7 +2124,7 @@
     const dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `bloomflow_tasks_${new Date().toISOString().slice(0, 10)}.csv`);
+    downloadAnchor.setAttribute("download", `mimi_tasks_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -1769,7 +2227,7 @@
     renderAll();
     triggerConfetti();
     playSound('triumph');
-    showToast('Loaded SaaS sample dataset!', '🚀');
+    showToast('Loaded demo dataset!', '🚀');
   }
 
   function resetAllData() {
@@ -1832,6 +2290,8 @@
     populateTagSelectOptions();
     updateSidebarBadges();
     updateSoundUI();
+    updatePomodoroModeButtons();
+    syncAlarmSoundInputsUI();
   }
 
   /* --------------------------------------------------------------------------
@@ -1862,7 +2322,7 @@
       });
     });
 
-    // Quick Add Form with Natural Language Processor
+    // Quick Add Form: Accurate time & field detection
     const quickAddBtn = $('quickAddSubmit');
     const quickAddInput = $('quickAddTitle');
 
@@ -1873,13 +2333,26 @@
       const parsed = parseNaturalLanguageTask(raw);
       if (!parsed.title) return;
 
+      // Accurate time: takes parsed @time or the exact chosen quickAddTime input
+      const chosenTime = parsed.time || $('quickAddTime').value || '18:00';
+      const chosenDueDate = parsed.dueDate || new Date().toISOString().slice(0, 10);
+      const chosenPriority = parsed.priority || $('quickAddPriority').value || 'p3';
+      const selectedDropdownTag = $('quickAddTag') ? $('quickAddTag').value : null;
+      const chosenTag = parsed.tag || selectedDropdownTag || activeTag || (state.tags[0] ? state.tags[0].id : 'personal');
+
+      // If user adds task while viewing completed tab, automatically switch to 'all' so task is visible immediately
+      if (activeFilter === 'completed') {
+        activeFilter = 'all';
+        $$('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === 'all'));
+      }
+
       addTask({
         title: parsed.title,
         emoji: $('quickAddEmoji').value,
-        priority: parsed.priority || $('quickAddPriority').value,
-        tag: parsed.tag || $('quickAddTag').value,
-        time: parsed.time || $('quickAddTime').value,
-        dueDate: parsed.dueDate || new Date().toISOString().slice(0, 10),
+        priority: chosenPriority,
+        tag: chosenTag,
+        time: chosenTime,
+        dueDate: chosenDueDate,
         recurrence: $('quickAddRecurrence').value
       });
 
@@ -1911,6 +2384,13 @@
         if (tagModal) tagModal.classList.remove('active');
         const shortcutsModal = $('shortcutsModalOverlay');
         if (shortcutsModal) shortcutsModal.classList.remove('active');
+        const pomoSettingsModal = $('pomoSettingsModalOverlay');
+        if (pomoSettingsModal) pomoSettingsModal.classList.remove('active');
+        const alarmModal = $('alarmModalOverlay');
+        if (alarmModal) {
+          stopAlarmRingingSound();
+          alarmModal.classList.remove('active');
+        }
       } else if (!isInput) {
         if (e.key === '?') {
           openShortcutsModal();
@@ -2015,8 +2495,8 @@
       });
     }
 
-    // Periodic Reminders Daemon
-    setInterval(checkLiveReminders, 20000);
+    // High-Frequency Alarm Reminder Daemon (Every 3 seconds)
+    setInterval(checkLiveReminders, 3000);
   }
 
   /* --------------------------------------------------------------------------
@@ -2027,17 +2507,11 @@
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-
-    const topbarInstallBtn = $('btnInstallPWA');
-    if (topbarInstallBtn) {
-      topbarInstallBtn.style.display = 'flex';
-      topbarInstallBtn.addEventListener('click', () => triggerInstallPrompt());
-    }
   });
 
   function triggerInstallPrompt() {
     if (!deferredPrompt) {
-      showToast('To install on Android: Tap Chrome/Edge Menu (⋮) → "Add to Home screen" or "Install app".', '📱', 6000);
+      showToast('To install on Android: Tap Chrome Menu (⋮) → "Add to Home screen" or "Install app".', '📱', 6000);
       return;
     }
 
@@ -2096,6 +2570,20 @@
     openQuickAddColumn: openQuickAddColumn,
     handleDateClick: handleDateClick,
     goToTodayCalendar: goToTodayCalendar,
+    snoozeAlarm: snoozeAlarm,
+    completeAlarmTask: completeAlarmTask,
+    dismissAlarmModal: dismissAlarmModal,
+    openPomoSettingsModal: openPomoSettingsModal,
+    savePomoSettings: savePomoSettings,
+    applyPomoPreset: applyPomoPreset,
+    startBreakAfterFocus: startBreakAfterFocus,
+    startFocusAfterBreak: startFocusAfterBreak,
+    previewSelectedSound: previewSelectedSound,
+    updateAlarmSoundSetting: updateAlarmSoundSetting,
+    testAlarmSound: (type) => {
+      const sounds = state.alarmSounds || DEFAULT_ALARM_SOUNDS;
+      previewSelectedSound(sounds[type] || 'melody');
+    },
 
     startFocusTask: (id) => {
       pomoActiveTaskId = id;

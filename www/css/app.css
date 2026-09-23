@@ -1996,6 +1996,13 @@ kbd {
   font-weight: 600;
 }
 
+/* ------------------- Alarm Pulse Animation ------------------- */
+@keyframes pulseAlarm {
+  0% { transform: scale(1) rotate(-8deg); }
+  50% { transform: scale(1.18) rotate(8deg); }
+  100% { transform: scale(1) rotate(-8deg); }
+}
+
 /* Confetti Canvas */
 #confettiCanvas {
   position: fixed;
