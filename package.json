@@ -1,0 +1,28 @@
+{
+  "name": "little-bloom-pro",
+  "version": "2.0.0",
+  "description": "Little Bloom Pro — Modern SaaS Productivity & Focus Suite with Local Database Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build:android": "node build-android.js; npx cap sync android",
+    "open:android": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^7.6.9",
+    "@capacitor/core": "^8.5.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "keywords": [
+    "productivity",
+    "todo",
+    "kanban",
+    "pomodoro",
+    "pwa"
+  ],
+  "author": "BloomFlow Team",
+  "license": "MIT"
+}

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdf2f8" />
+      <stop offset="50%" stop-color="#fce7f3" />
+      <stop offset="100%" stop-color="#fbcfe8" />
+    </linearGradient>
+    <linearGradient id="petalGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f472b6" />
+      <stop offset="100%" stop-color="#db2777" />
+    </linearGradient>
+    <linearGradient id="petalGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb7185" />
+      <stop offset="100%" stop-color="#e11d48" />
+    </linearGradient>
+    <linearGradient id="stemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#db2777" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+
+  <!-- Inner glowing circle -->
+  <circle cx="256" cy="256" r="210" fill="#ffffff" opacity="0.6" />
+
+  <!-- Stem & Leaf -->
+  <path d="M256 260 Q256 390 256 420" stroke="url(#stemGrad)" stroke-width="16" stroke-linecap="round" fill="none" />
+  <path d="M256 360 Q320 340 330 290 Q290 320 256 350" fill="url(#stemGrad)" />
+
+  <!-- Flower Tulip Petals with 3D Shadow -->
+  <g filter="url(#shadow)">
+    <!-- Left Petal -->
+    <path d="M256 290 C180 290 150 200 170 140 C200 110 240 180 256 290 Z" fill="url(#petalGrad1)" opacity="0.9" />
+    <!-- Right Petal -->
+    <path d="M256 290 C332 290 362 200 342 140 C312 110 272 180 256 290 Z" fill="url(#petalGrad1)" opacity="0.9" />
+    <!-- Center Petal -->
+    <path d="M256 300 C210 300 200 170 230 110 C256 80 282 110 282 110 C312 170 302 300 256 300 Z" fill="url(#petalGrad2)" />
+  </g>
+
+  <!-- Sparkle Accent -->
+  <polygon points="380,90 390,115 415,125 390,135 380,160 370,135 345,125 370,115" fill="#f59e0b" opacity="0.85" />
+</svg>

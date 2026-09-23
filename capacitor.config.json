@@ -1,0 +1,12 @@
+{
+  "appId": "com.littlebloom.app",
+  "appName": "Little Bloom Pro",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

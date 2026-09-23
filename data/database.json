@@ -1,0 +1,69 @@
+{
+  "tasks": [
+    {
+      "id": "task_mueca0ini1i4",
+      "title": "python study",
+      "description": "",
+      "emoji": "📚",
+      "priority": "p3",
+      "tag": "personal",
+      "status": "todo",
+      "done": false,
+      "dueDate": "2026-09-23",
+      "time": "18:00",
+      "recurrence": "once",
+      "subtasks": [],
+      "pomodorosEstimated": 1,
+      "pomodorosCompleted": 0,
+      "createdAt": "2026-09-23T16:50:29.279Z",
+      "completedAt": null,
+      "lastNotified": ""
+    }
+  ],
+  "theme": "blossom",
+  "soundEnabled": true,
+  "streak": {
+    "count": 0,
+    "lastDate": ""
+  },
+  "focusMinutesToday": 0,
+  "tags": [
+    {
+      "id": "work",
+      "name": "Work",
+      "color": "var(--tag-work)",
+      "bg": "var(--tag-work-bg)",
+      "icon": "💼"
+    },
+    {
+      "id": "personal",
+      "name": "Personal",
+      "color": "var(--tag-personal)",
+      "bg": "var(--tag-personal-bg)",
+      "icon": "🌸"
+    },
+    {
+      "id": "study",
+      "name": "Study",
+      "color": "var(--tag-study)",
+      "bg": "var(--tag-study-bg)",
+      "icon": "📚"
+    },
+    {
+      "id": "health",
+      "name": "Health",
+      "color": "var(--tag-health)",
+      "bg": "var(--tag-health-bg)",
+      "icon": "🧘"
+    },
+    {
+      "id": "creative",
+      "name": "Creative",
+      "color": "var(--tag-creative)",
+      "bg": "var(--tag-creative-bg)",
+      "icon": "🎨"
+    }
+  ],
+  "lastUpdated": "2026-09-23T16:50:29.283Z",
+  "onboardingDismissed": true
+}

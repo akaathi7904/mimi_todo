@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en" data-theme="blossom">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#ec4899">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="description" content="Little Bloom Pro — Flagship SaaS Productivity Suite, Daily Flow, Kanban, Ambient Focus & Mindful Task Management">
+  <title>Little Bloom Pro 🌷 | SaaS Productivity</title>
+  
+  <!-- App Icons & PWA Manifest -->
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Mobile Sidebar Backdrop Overlay -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🌷</div>
+      <div>
+        <div class="brand-name">Little Bloom</div>
+        <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Productivity Suite</div>
+      </div>
+      <span class="brand-badge">PRO</span>
+    </div>
+
+    <!-- Main Navigation Views -->
+    <div class="nav-section">
+      <div class="nav-label">Workspace</div>
+      <button class="nav-btn active" data-view="today">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <span>Today's Flow</span>
+        <span class="badge" id="todayBadge">0</span>
+      </button>
+
+      <button class="nav-btn" data-view="inbox">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        <span>All Tasks</span>
+        <span class="badge" id="inboxBadge">0</span>
+      </button>
+
+      <button class="nav-btn" data-view="upcoming">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>Upcoming</span>
+      </button>
+
+      <button class="nav-btn" data-view="kanban">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        <span>Kanban Board</span>
+      </button>
+
+      <button class="nav-btn" data-view="calendar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+        <span>Calendar</span>
+      </button>
+
+      <button class="nav-btn" data-view="pomodoro">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Focus Mode</span>
+      </button>
+
+      <button class="nav-btn" data-view="analytics">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>Analytics</span>
+      </button>
+    </div>
+
+    <!-- Categories & Tags Section -->
+    <div class="nav-section" style="flex: 1;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <div class="nav-label" style="margin-bottom: 0;">Categories</div>
+        <button class="icon-btn-mini" onclick="window.BloomFlow.openTagModal()" title="Add Custom Category">＋</button>
+      </div>
+      <div class="tags-list" id="tagsSidebarList">
+        <!-- Injected dynamically by JS -->
+      </div>
+    </div>
+
+    <!-- Streak Card & Shortcuts Trigger -->
+    <div class="sidebar-footer">
+      <div class="streak-widget">
+        <div class="streak-flame">🔥</div>
+        <div class="streak-info">
+          <span class="streak-count" id="streakCount">0 Day Streak</span>
+          <span class="streak-sub">Complete a task to ignite!</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="main-content">
+    <!-- Topbar Header -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle Navigation">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+
+        <!-- Live Database Sync Status Indicator -->
+        <div class="sync-indicator" id="syncIndicator" title="Click to test local database sync" onclick="window.BloomFlow.syncNow()">
+          <span class="sync-dot"></span>
+          <span id="syncText">Local DB Synced</span>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <!-- Keyboard Shortcuts Helper Button -->
+        <button class="icon-btn" onclick="window.BloomFlow.openShortcutsModal()" title="Keyboard Shortcuts (?)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </button>
+
+        <!-- Notification Permission Button -->
+        <button class="icon-btn" title="Enable Smart Reminders" onclick="window.BloomFlow.requestNotifications()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </button>
+
+        <!-- Settings & Data Modal Button -->
+        <button class="icon-btn" id="settingsBtn" title="Settings, Themes & Backups">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- WORKSPACE VIEWS CONTAINER -->
+    <div class="workspace">
+      
+      <!-- Welcome / Quick Start Onboarding Banner -->
+      <div class="onboarding-banner" id="onboardingBanner">
+        <div class="onboarding-content">
+          <div class="onboarding-icon">✨</div>
+          <div class="onboarding-text">
+            <h4>Welcome to Little Bloom Pro!</h4>
+            <p>Your clean, focused workspace is ready. Type in the quick add bar with smart tags (e.g. <code>#work</code>, <code>!p1</code>), press <kbd>Ctrl+K</kbd> to search, or switch to Kanban and Pomodoro modes.</p>
+          </div>
+        </div>
+        <button class="onboarding-close" onclick="window.BloomFlow.dismissOnboarding()" title="Dismiss Tip">✕</button>
+      </div>
+
+      <!-- 1. TODAY / INBOX / UPCOMING LIST VIEW -->
+      <section class="view-pane active" id="view-today">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h1 id="currentViewTitle">☀️ Today's Flow</h1>
+            <p id="currentViewSub">Daily focus and planned moments.</p>
+          </div>
+          <div class="view-controls">
+            <div class="filter-chip-group">
+              <button class="filter-chip active" data-filter="all">All</button>
+              <button class="filter-chip" data-filter="active">Active</button>
+              <button class="filter-chip" data-filter="completed">Done</button>
+              <button class="filter-chip" data-filter="p1">🔴 P1</button>
+              <button class="filter-chip" data-filter="p2">🟠 P2</button>
+            </div>
+
+            <select class="sort-select" onchange="window.BloomFlow.setSort(this.value)" title="Sort tasks">
+              <option value="created">🕒 Newest</option>
+              <option value="priority">🔴 Priority</option>
+              <option value="due">📅 Due Date</option>
+              <option value="title">🔤 Title (A-Z)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Progress Card -->
+        <div class="progress-card" id="progressCard">
+          <div class="progress-info">
+            <div class="progress-header">
+              <span id="progressRatioText">0 of 0 completed</span>
+              <span id="progressPercentText">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Add Task Bar with Smart Natural Language Parsing -->
+        <div class="quick-add-card">
+          <div class="quick-add-top">
+            <input type="text" class="quick-add-input" id="quickAddTitle" placeholder="＋ Add a task...">
+            <button class="btn-primary" id="quickAddSubmit" style="padding: 7px 16px; font-size: 0.85rem;">Add</button>
+          </div>
+          <div class="quick-add-options">
+            <div class="input-pill">
+              <span>Emoji</span>
+              <select id="quickAddEmoji">
+                <option value="🌷">🌷 Blossom</option>
+                <option value="✨">✨ Sparkle</option>
+                <option value="💼">💼 Work</option>
+                <option value="📚">📚 Study</option>
+                <option value="🌸">🌸 Bloom</option>
+                <option value="⭐">⭐ Star</option>
+                <option value="🌙">🌙 Moon</option>
+                <option value="🚀">🚀 Launch</option>
+                <option value="🧘">🧘 Wellness</option>
+              </select>
+            </div>
+
+            <div class="input-pill">
+              <span>Priority</span>
+              <select id="quickAddPriority">
+                <option value="p3">🟡 Medium (P3)</option>
+                <option value="p1">🔴 Urgent (P1)</option>
+                <option value="p2">🟠 High (P2)</option>
+                <option value="p4">🟢 Low (P4)</option>
+              </select>
+            </div>
+
+            <div class="input-pill">
+              <span>Category</span>
+              <select id="quickAddTag">
+                <option value="personal">🌸 Personal</option>
+                <option value="work">💼 Work</option>
+                <option value="study">📚 Study</option>
+                <option value="health">🧘 Health</option>
+                <option value="creative">🎨 Creative</option>
+              </select>
+            </div>
+
+            <div class="input-pill">
+              <span>Time</span>
+              <input type="time" id="quickAddTime" value="18:00">
+            </div>
+
+            <div class="input-pill">
+              <span>Repeat</span>
+              <select id="quickAddRecurrence">
+                <option value="once">Once</option>
+                <option value="daily">Daily</option>
+                <option value="weekdays">Weekdays</option>
+                <option value="weekend">Weekends</option>
+                <option value="weekly">Weekly</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task List Items -->
+        <div class="task-list" id="taskListContainer">
+          <!-- Injected dynamically by JS -->
+        </div>
+      </section>
+
+      <!-- 2. KANBAN BOARD VIEW -->
+      <section class="view-pane" id="view-kanban">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h1>📋 Kanban Pipeline</h1>
+            <p>Drag, drop, and manage task workflow stages in real time.</p>
+          </div>
+          <div class="view-controls">
+            <button class="btn-primary" onclick="window.BloomFlow.openTaskDrawer('new')" style="padding: 7px 14px; font-size: 0.85rem;">＋ New Task</button>
+          </div>
+        </div>
+
+        <div class="kanban-board">
+          <div class="kanban-col" ondragover="window.BloomFlow.handleDragOver(event)" ondrop="window.BloomFlow.handleDrop(event, 'todo')">
+            <div class="kanban-col-header">
+              <span class="col-title">📌 To Do</span>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="kanban-count" id="kanban-count-todo">0</span>
+                <button class="kanban-add-mini-btn" onclick="window.BloomFlow.openQuickAddColumn('todo')" title="Add to To Do">＋</button>
+              </div>
+            </div>
+            <div class="kanban-cards-container" id="kanban-col-todo"></div>
+          </div>
+
+          <div class="kanban-col" ondragover="window.BloomFlow.handleDragOver(event)" ondrop="window.BloomFlow.handleDrop(event, 'inprogress')">
+            <div class="kanban-col-header">
+              <span class="col-title">⚡ In Progress</span>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="kanban-count" id="kanban-count-inprogress">0</span>
+                <button class="kanban-add-mini-btn" onclick="window.BloomFlow.openQuickAddColumn('inprogress')" title="Add to In Progress">＋</button>
+              </div>
+            </div>
+            <div class="kanban-cards-container" id="kanban-col-inprogress"></div>
+          </div>
+
+          <div class="kanban-col" ondragover="window.BloomFlow.handleDragOver(event)" ondrop="window.BloomFlow.handleDrop(event, 'review')">
+            <div class="kanban-col-header">
+              <span class="col-title">👀 In Review</span>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="kanban-count" id="kanban-count-review">0</span>
+                <button class="kanban-add-mini-btn" onclick="window.BloomFlow.openQuickAddColumn('review')" title="Add to Review">＋</button>
+              </div>
+            </div>
+            <div class="kanban-cards-container" id="kanban-col-review"></div>
+          </div>
+
+          <div class="kanban-col" ondragover="window.BloomFlow.handleDragOver(event)" ondrop="window.BloomFlow.handleDrop(event, 'done')">
+            <div class="kanban-col-header">
+              <span class="col-title">✅ Done</span>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="kanban-count" id="kanban-count-done">0</span>
+                <button class="kanban-add-mini-btn" onclick="window.BloomFlow.openQuickAddColumn('done')" title="Add to Done">＋</button>
+              </div>
+            </div>
+            <div class="kanban-cards-container" id="kanban-col-done"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. CALENDAR VIEW -->
+      <section class="view-pane" id="view-calendar">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h1>🗓️ Monthly Schedule</h1>
+            <p>Interactive calendar overview. Click any date to view or plan tasks.</p>
+          </div>
+          <div class="view-controls">
+            <button class="icon-btn" id="calPrevMonth" title="Previous Month">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <span class="calendar-month-title" id="calendarMonthTitle" style="padding: 0 8px;"></span>
+            <button class="icon-btn" id="calNextMonth" title="Next Month">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <button class="nav-btn" onclick="window.BloomFlow.goToTodayCalendar()" style="padding: 6px 12px; font-size: 0.8rem; width: auto; border: 1px solid var(--border-subtle);">Today</button>
+          </div>
+        </div>
+
+        <div class="calendar-card">
+          <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+      </section>
+
+      <!-- 4. POMODORO FOCUS MODE & AMBIENT SOUNDSCAPES -->
+      <section class="view-pane" id="view-pomodoro">
+        <div class="pomodoro-container">
+          <div class="pomodoro-mode-switch">
+            <button class="pomodoro-mode-btn active" data-mode="work">🍅 Focus (25m)</button>
+            <button class="pomodoro-mode-btn" data-mode="shortBreak">☕ Short Break (5m)</button>
+            <button class="pomodoro-mode-btn" data-mode="longBreak">🌴 Long Break (15m)</button>
+          </div>
+
+          <div class="pomodoro-dial">
+            <svg class="pomodoro-svg" viewBox="0 0 280 280">
+              <defs>
+                <linearGradient id="pomoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#f472b6" />
+                  <stop offset="100%" stop-color="#ec4899" />
+                </linearGradient>
+              </defs>
+              <circle class="pomodoro-circle-bg" cx="140" cy="140" r="120"></circle>
+              <circle class="pomodoro-circle-progress" id="pomoCircleProgress" cx="140" cy="140" r="120"></circle>
+            </svg>
+            <div class="pomodoro-time-display">
+              <span class="pomodoro-time" id="pomoTimeDisplay">25:00</span>
+              <span class="pomodoro-label" id="pomoModeLabel">Deep Work Session</span>
+            </div>
+          </div>
+
+          <div class="pomodoro-controls">
+            <button class="btn-pomo-main" id="btnPomoMain">Start Focus</button>
+            <button class="icon-btn" id="btnPomoReset" title="Reset Timer" style="width: 48px; height: 48px; border-radius: var(--radius-full);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            </button>
+          </div>
+
+          <!-- Ambient Soundscape Player -->
+          <div class="ambient-sound-card">
+            <div class="ambient-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              <span>Ambient Soundscape</span>
+            </div>
+            <div class="ambient-options">
+              <button class="ambient-btn active" data-sound="off" onclick="window.BloomFlow.setAmbientSound('off')">🔇 Off</button>
+              <button class="ambient-btn" data-sound="rain" onclick="window.BloomFlow.setAmbientSound('rain')">🌧️ Rain</button>
+              <button class="ambient-btn" data-sound="forest" onclick="window.BloomFlow.setAmbientSound('forest')">🌲 Forest</button>
+              <button class="ambient-btn" data-sound="cafe" onclick="window.BloomFlow.setAmbientSound('cafe')">☕ Cafe</button>
+              <button class="ambient-btn" data-sound="ocean" onclick="window.BloomFlow.setAmbientSound('ocean')">🌊 Waves</button>
+            </div>
+          </div>
+
+          <!-- Active Task Card in Pomodoro -->
+          <div class="pomodoro-active-task-card">
+            <div style="text-align: left;">
+              <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Active Task Focus</div>
+              <div style="font-weight: 750; font-size: 0.95rem; color: var(--text-primary);" id="pomoActiveTaskTitle">No specific task selected</div>
+            </div>
+            <button class="icon-btn" onclick="window.BloomFlow.switchView('today')" title="Choose Task">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. ANALYTICS & INSIGHTS VIEW -->
+      <section class="view-pane" id="view-analytics">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h1>📊 Productivity Analytics</h1>
+            <p>Track your completion velocity, daily streaks, and focused flow.</p>
+          </div>
+        </div>
+
+        <div class="analytics-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <span>Total Completed</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="stat-value" id="statTotalCompleted">0</div>
+            <div class="stat-trend"><span>Lifetime completed</span></div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <span>Completion Rate</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/></svg>
+            </div>
+            <div class="stat-value" id="statCompletionRate">0%</div>
+            <div class="stat-trend"><span>Task completion ratio</span></div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <span>Current Streak</span>
+              <span style="font-size: 1.1rem;">🔥</span>
+            </div>
+            <div class="stat-value" id="statStreakCount">0 Days</div>
+            <div class="stat-trend"><span>Consecutive active days</span></div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <span>Focus Logged</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="stat-value" id="statFocusMinutes">0m</div>
+            <div class="stat-trend"><span>Pomodoro time today</span></div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-title">Weekly Task Velocity</div>
+            <div class="bar-chart-container" id="weeklyBarChart"></div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-title">Category Distribution</div>
+            <div class="category-breakdown-list" id="categoryBreakdownList">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- Mobile Floating Action Button (1-Tap New Task) -->
+<button class="mobile-fab" onclick="window.BloomFlow.openTaskDrawer('new')" aria-label="Create New Task">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</button>
+
+<!-- TASK DETAIL & EDIT DRAWER MODAL -->
+<div class="modal-overlay" id="taskDrawerOverlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title" id="drawerModalTitle">Task Details</div>
+      <button class="modal-close-btn" onclick="window.BloomFlow.closeTaskDrawer()">✕</button>
+    </div>
+
+    <input type="hidden" id="modalTaskId">
+
+    <div class="form-group">
+      <label class="form-label">Task Title</label>
+      <input type="text" class="form-input" id="modalTaskTitle" placeholder="Task title...">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Notes & Description</label>
+      <textarea class="form-textarea" id="modalTaskDesc" rows="3" placeholder="Add rich details, links, or notes..."></textarea>
+    </div>
+
+    <div class="form-row-2">
+      <div class="form-group">
+        <label class="form-label">Emoji</label>
+        <select class="form-select" id="modalTaskEmoji">
+          <option value="🌷">🌷 Blossom</option>
+          <option value="✨">✨ Sparkle</option>
+          <option value="💼">💼 Work</option>
+          <option value="📚">📚 Study</option>
+          <option value="🌸">🌸 Flower</option>
+          <option value="⭐">⭐ Star</option>
+          <option value="🌙">🌙 Moon</option>
+          <option value="🚀">🚀 Launch</option>
+          <option value="🧘">🧘 Health</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select class="form-select" id="modalTaskPriority">
+          <option value="p1">🔴 P1 Urgent</option>
+          <option value="p2">🟠 P2 High</option>
+          <option value="p3">🟡 P3 Medium</option>
+          <option value="p4">🟢 Low</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row-2">
+      <div class="form-group">
+        <label class="form-label">Category / Tag</label>
+        <select class="form-select" id="modalTaskTag">
+          <!-- Populated dynamically from state.tags -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Recurrence</label>
+        <select class="form-select" id="modalTaskRecurrence">
+          <option value="once">Once</option>
+          <option value="daily">Daily</option>
+          <option value="weekdays">Weekdays</option>
+          <option value="weekend">Weekends</option>
+          <option value="weekly">Weekly</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row-2">
+      <div class="form-group">
+        <label class="form-label">Due Date</label>
+        <input type="date" class="form-input" id="modalTaskDueDate">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Reminder Time</label>
+        <input type="time" class="form-input" id="modalTaskTime">
+      </div>
+    </div>
+
+    <!-- Subtasks Checklist -->
+    <div class="form-group" style="margin-top: 10px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <label class="form-label" style="margin-bottom: 0;">Subtasks & Checklist</label>
+        <span id="subtasksCountBadge" style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">0/0</span>
+      </div>
+      <div class="subtasks-container" id="subtasksListContainer"></div>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <input type="text" class="form-input" id="newSubtaskText" placeholder="Add checklist item..." style="flex: 1;">
+        <button class="btn-primary" id="btnAddSubtask" style="padding: 8px 14px; font-size: 0.85rem;">+ Add</button>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+      <button class="nav-btn" style="width: auto; padding: 10px 20px;" onclick="window.BloomFlow.closeTaskDrawer()">Cancel</button>
+      <button class="btn-primary" id="drawerSaveBtn" onclick="window.BloomFlow.saveTaskDrawer()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- CALENDAR DAY TASKS POPOVER MODAL -->
+<div class="modal-overlay" id="calendarDayModal" onclick="if(event.target===this) this.classList.remove('active')">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title" id="calendarDayModalTitle">📅 Schedule for Date</div>
+      <button class="modal-close-btn" onclick="$('calendarDayModal').classList.remove('active')">✕</button>
+    </div>
+    <div class="calendar-day-tasks-list" id="calendarDayTasksList">
+      <!-- Injected by JS -->
+    </div>
+    <div style="margin-top: 18px; display: flex; justify-content: space-between; align-items: center;">
+      <button class="btn-primary" id="btnCalendarAddDayTask" style="padding: 8px 16px;">＋ Add Plan for This Day</button>
+      <button class="nav-btn" style="width: auto;" onclick="$('calendarDayModal').classList.remove('active')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM CATEGORY / TAG CREATOR MODAL -->
+<div class="modal-overlay" id="tagModalOverlay" onclick="if(event.target===this) this.classList.remove('active')">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title">🏷️ Manage Categories</div>
+      <button class="modal-close-btn" onclick="$('tagModalOverlay').classList.remove('active')">✕</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Existing Categories</label>
+      <div class="custom-tags-manager-list" id="customTagsManagerList">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <div style="border-top: 1px solid var(--border-subtle); padding-top: 16px; margin-top: 16px;">
+      <label class="form-label">Create New Category</label>
+      <div class="form-row-2">
+        <input type="text" class="form-input" id="newTagName" placeholder="Category name...">
+        <input type="text" class="form-input" id="newTagIcon" placeholder="Emoji" style="text-align: center; max-width: 90px;" value="✨">
+      </div>
+      <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
+        <button class="btn-primary" onclick="window.BloomFlow.createCustomTag()">＋ Add Category</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KEYBOARD SHORTCUTS CHEAT SHEET MODAL -->
+<div class="modal-overlay" id="shortcutsModalOverlay" onclick="if(event.target===this) this.classList.remove('active')">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title">⌨️ Keyboard Shortcuts</div>
+      <button class="modal-close-btn" onclick="$('shortcutsModalOverlay').classList.remove('active')">✕</button>
+    </div>
+
+    <div class="shortcuts-grid">
+      <div class="shortcut-row">
+        <span>Global Command Palette / Search</span>
+        <kbd>Ctrl + K</kbd>
+      </div>
+      <div class="shortcut-row">
+        <span>Quick Create New Task</span>
+        <kbd>N</kbd> / <kbd>Ctrl + N</kbd>
+      </div>
+      <div class="shortcut-row">
+        <span>Open Pomodoro Focus Timer</span>
+        <kbd>F</kbd>
+      </div>
+      <div class="shortcut-row">
+        <span>Today's Flow</span>
+        <kbd>1</kbd>
+      </div>
+      <div class="shortcut-row">
+        <span>All Tasks / Inbox</span>
+        <kbd>2</kbd>
+      </div>
+      <div class="shortcut-row">
+        <span>Upcoming Timeline</span>
+        <kbd>3</kbd>
+      </div>
+      <div class="shortcut-row">
+        <span>Kanban Board</span>
+        <kbd>4</kbd>
+      </div>
+      <div class="shortcut-row">
+        <span>Calendar View</span>
+        <kbd>5</kbd>
+      </div>
+      <div class="shortcut-row">
+        <span>Analytics View</span>
+        <kbd>6</kbd>
+      </div>
+      <div class="shortcut-row">
+        <span>Show Keyboard Shortcuts</span>
+        <kbd>?</kbd>
+      </div>
+      <div class="shortcut-row">
+        <span>Close Modal / Drawer</span>
+        <kbd>ESC</kbd>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMAND PALETTE (CTRL+K) MODAL -->
+<div class="command-palette-overlay" id="commandPaletteOverlay" onclick="if(event.target===this) window.BloomFlow.closeCommandPalette()">
+  <div class="command-palette-box">
+    <div class="command-input-row">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-muted);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" class="command-input" id="commandInput" placeholder="Type a command or search tasks...">
+      <span class="kbd-shortcut">ESC</span>
+    </div>
+    <div class="command-results" id="commandResults"></div>
+  </div>
+</div>
+
+<!-- SETTINGS & DATA MANAGEMENT MODAL -->
+<div class="modal-overlay" id="settingsModalOverlay" onclick="if(event.target===this) this.classList.remove('active')">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ App Settings & Data</div>
+      <button class="modal-close-btn" onclick="$('settingsModalOverlay').classList.remove('active')">✕</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Theme Palette</label>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;">
+        <button class="nav-btn" onclick="window.BloomFlow.setTheme('blossom')" style="border: 1px solid var(--border-subtle); justify-content: center;">🌸 Soft Blossom</button>
+        <button class="nav-btn" onclick="window.BloomFlow.setTheme('dark')" style="border: 1px solid var(--border-subtle); justify-content: center;">🌙 Midnight Dark</button>
+        <button class="nav-btn" onclick="window.BloomFlow.setTheme('light')" style="border: 1px solid var(--border-subtle); justify-content: center;">☀️ Modern Light</button>
+        <button class="nav-btn" onclick="window.BloomFlow.setTheme('ocean')" style="border: 1px solid var(--border-subtle); justify-content: center;">🌊 Ocean Breeze</button>
+      </div>
+    </div>
+
+    <!-- Sound Effects Toggle -->
+    <div class="form-group" style="margin-top: 16px;">
+      <label class="form-label">Sound & Audio Feedback</label>
+      <button class="nav-btn" id="soundToggleBtn" onclick="window.BloomFlow.toggleSound()" style="border: 1px solid var(--border-subtle); justify-content: space-between;">
+        <span>🔊 Sound Effects & Chimes</span>
+        <span id="soundToggleStatus" style="font-weight: 800; color: var(--accent-primary);">ON</span>
+      </button>
+    </div>
+
+    <!-- Android App Install Option -->
+    <div class="form-group" style="margin-top: 16px;">
+      <label class="form-label">Android App</label>
+      <button class="nav-btn" id="btnSettingsInstallPWA" onclick="window.BloomFlow.promptInstall()" style="border: 1px solid var(--border-focus); background: var(--accent-light); color: var(--accent-primary); font-weight: 700;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        <span>📱 Install as Android App</span>
+      </button>
+    </div>
+
+    <!-- Data Management & Exports -->
+    <div class="form-group" style="margin-top: 20px;">
+      <label class="form-label">Data Backup, Export & Utilities</label>
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+        <button class="nav-btn" onclick="window.BloomFlow.exportDailyAgendaMarkdown()" style="border: 1px solid var(--border-subtle);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>Export Daily Agenda (Markdown / Print)</span>
+        </button>
+
+        <button class="nav-btn" onclick="window.BloomFlow.exportJSON()" style="border: 1px solid var(--border-subtle);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Export All Data (JSON)</span>
+        </button>
+
+        <button class="nav-btn" onclick="window.BloomFlow.exportCSV()" style="border: 1px solid var(--border-subtle);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span>Export Tasks as Spreadsheet (CSV)</span>
+        </button>
+
+        <label class="nav-btn" style="border: 1px solid var(--border-subtle); cursor: pointer; margin: 0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span>Import JSON Backup</span>
+          <input type="file" accept=".json" style="display: none;" onchange="window.BloomFlow.importFile(this.files[0])">
+        </label>
+
+        <button class="nav-btn" onclick="window.BloomFlow.clearCompletedTasks()" style="border: 1px solid var(--border-subtle);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/><line x1="3" y1="12" x2="9" y2="18"/></svg>
+          <span>Clear Completed Tasks</span>
+        </button>
+
+        <button class="nav-btn" onclick="window.BloomFlow.loadSampleData()" style="border: 1px solid var(--border-subtle); color: var(--accent-primary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span>Load SaaS Sample Dataset</span>
+        </button>
+
+        <button class="nav-btn" onclick="window.BloomFlow.resetData()" style="border: 1px solid #fee2e2; color: #ef4444; margin-top: 8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <span>Clear All Data & Fresh Start</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE BOTTOM NAVIGATION -->
+<nav class="mobile-bottom-nav">
+  <button class="mobile-nav-item active" data-view="today">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+    <span>Today</span>
+  </button>
+  <button class="mobile-nav-item" data-view="inbox">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+    <span>All Tasks</span>
+  </button>
+  <button class="mobile-nav-item" data-view="kanban">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+    <span>Kanban</span>
+  </button>
+  <button class="mobile-nav-item" data-view="calendar">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+    <span>Calendar</span>
+  </button>
+  <button class="mobile-nav-item" data-view="pomodoro">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span>Focus</span>
+  </button>
+  <button class="mobile-nav-item" data-view="analytics">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span>Stats</span>
+  </button>
+</nav>
+
+<!-- Canvas for Celebratory Confetti & Toast Notification Stack -->
+<canvas id="confettiCanvas"></canvas>
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- Application Core Script -->
+<script src="js/app.js"></script>
+</body>
+</html>
