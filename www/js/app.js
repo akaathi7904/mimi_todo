@@ -2528,7 +2528,10 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('Mimi Service Worker registered:', reg.scope))
+          .then(reg => {
+            console.log('Mimi Service Worker registered:', reg.scope);
+            reg.update();
+          })
           .catch(err => console.log('Service Worker registration failed:', err));
       });
     }

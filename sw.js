@@ -4,7 +4,7 @@
  * ============================================================================
  */
 
-const CACHE_NAME = 'little-bloom-cache-v2';
+const CACHE_NAME = 'mimi-cache-v3.0.1';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -18,32 +18,36 @@ const STATIC_ASSETS = [
 
 // Install Event: Pre-cache static assets
 self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       return cache.addAll(STATIC_ASSETS);
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
-// Activate Event: Clear old caches
+// Activate Event: Clear all old caches immediately
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+        keys.filter(key => key !== CACHE_NAME).map(key => {
+          console.log('Clearing old cache:', key);
+          return caches.delete(key);
+        })
       );
     }).then(() => self.clients.claim())
   );
 });
 
-// Fetch Event: Network-first with Cache fallback for real-time offline support
+// Fetch Event: Network-First strategy with Cache Fallback for instant live updates
 self.addEventListener('fetch', event => {
-  // Only handle GET requests
   if (event.request.method !== 'GET') return;
+  if (!event.request.url.startsWith('http')) return;
 
   event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      const fetchPromise = fetch(event.request).then(networkResponse => {
+    fetch(event.request)
+      .then(networkResponse => {
         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then(cache => {
@@ -51,13 +55,16 @@ self.addEventListener('fetch', event => {
           });
         }
         return networkResponse;
-      }).catch(() => {
+      })
+      .catch(() => {
         // Return cached version if offline
-        return cachedResponse;
-      });
-
-      return cachedResponse || fetchPromise;
-    })
+        return caches.match(event.request).then(cached => {
+          if (cached) return cached;
+          if (event.request.mode === 'navigate') {
+            return caches.match('./index.html') || caches.match('./');
+          }
+        });
+      })
   );
 });
 
