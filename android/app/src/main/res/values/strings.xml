@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Little Bloom Pro</string>
-    <string name="title_activity_main">Little Bloom Pro</string>
-    <string name="package_name">com.littlebloom.app</string>
-    <string name="custom_url_scheme">com.littlebloom.app</string>
+    <string name="app_name">Mimi</string>
+    <string name="title_activity_main">Mimi</string>
+    <string name="package_name">com.mimi.app</string>
+    <string name="custom_url_scheme">com.mimi.app</string>
 </resources>

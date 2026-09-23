@@ -1,8 +1,8 @@
 {
   "id": "/?source=pwa",
-  "name": "Little Bloom Pro — Focus & Task Management",
-  "short_name": "Little Bloom",
-  "description": "Modern SaaS Productivity, Daily Focus, Kanban & Mindful Task Management",
+  "name": "Mimi — Smart Productivity & Task Management",
+  "short_name": "Mimi",
+  "description": "Mimi — Daily Flow, Kanban, Ambient Focus & Task Management",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

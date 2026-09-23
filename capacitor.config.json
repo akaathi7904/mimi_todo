@@ -1,6 +1,6 @@
 {
-  "appId": "com.littlebloom.app",
-  "appName": "Little Bloom Pro",
+  "appId": "com.mimi.app",
+  "appName": "Mimi",
   "webDir": "www",
   "bundledWebRuntime": false,
   "server": {

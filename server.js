@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * LITTLE BLOOM PRO - NODE.JS EXPRESS LOCAL DATABASE SERVER
+ * MIMI - NODE.JS EXPRESS LOCAL DATABASE SERVER
  * ============================================================================
  */
 
@@ -78,7 +78,7 @@ app.use(express.static(__dirname));
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
-    app: 'Little Bloom Pro Server',
+    app: 'Mimi Server',
     version: '2.0.0',
     time: new Date().toISOString()
   });
@@ -200,7 +200,7 @@ function startServer(port) {
   const server = app.listen(port, () => {
     console.log(`
   =======================================================
-  🌷 Little Bloom Pro — Local Database Server Running!
+  🌸 Mimi — Local Database Server Running!
   =======================================================
   🌐 Local URL:   http://localhost:${port}
   📁 Database:    ${DB_FILE}
