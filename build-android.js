@@ -1,5 +1,5 @@
 /**
- * Android Asset Preparer & Sync Script for Little Bloom Pro
+ * Android Asset Preparer & Sync Script for Mimi
  */
 const fs = require('fs');
 const path = require('path');
@@ -44,3 +44,11 @@ itemsToCopy.forEach(item => {
 });
 
 console.log('✅ Web assets bundled to www/ folder successfully!');
+
+try {
+  console.log('🔄 Syncing with Android platform...');
+  execSync('npx cap sync android', { stdio: 'inherit' });
+  console.log('✨ Mimi Android build synced successfully!');
+} catch (e) {
+  console.error('Capacitor sync notice:', e.message);
+}

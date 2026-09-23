@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "build:android": "node build-android.js; npx cap sync android",
+    "build:android": "node build-android.js",
     "open:android": "npx cap open android"
   },
   "dependencies": {
